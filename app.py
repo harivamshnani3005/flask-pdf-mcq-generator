@@ -4,30 +4,44 @@ import nltk
 import random
 import os
 
-# ✅ Download required NLTK tokenizers
-nltk.download('punkt', quiet=True)
-nltk.download('punkt_tab', quiet=True)
-
 app = Flask(__name__)
 
-# ✅ Ensure uploads folder exists (important for Render)
+# ✅ Ensure uploads folder exists
 os.makedirs("uploads", exist_ok=True)
 
+# ✅ Safe NLTK resource check and download
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 
-# ---- Function to extract text from uploaded PDF ----
+try:
+    nltk.data.find("tokenizers/punkt_tab")
+except LookupError:
+    nltk.download("punkt_tab")
+
+
+# ---- Function: Extract text from uploaded PDF ----
 def extract_text_from_pdf(pdf_path):
     text = ""
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + " "
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + " "
+    except Exception as e:
+        return f"Error reading PDF: {e}"
     return text
 
 
-# ---- Function to generate simple MCQs from extracted text ----
+# ---- Function: Generate MCQs from text ----
 def generate_mcqs(text, num_questions=5):
-    sentences = nltk.sent_tokenize(text)
+    try:
+        sentences = nltk.sent_tokenize(text)
+    except Exception as e:
+        return [f"Error tokenizing text: {e}"]
+
     if not sentences:
         return []
 
@@ -35,29 +49,30 @@ def generate_mcqs(text, num_questions=5):
     for _ in range(min(num_questions, len(sentences))):
         sentence = random.choice(sentences)
         sentences.remove(sentence)
-
         words = sentence.split()
+
         if len(words) < 4:
             continue
 
-        # Select a random word as the correct answer
+        # Random answer word
         answer = random.choice(words)
         blank_sentence = sentence.replace(answer, "______", 1)
 
-        # Generate 3 dummy options
+        # Generate options
         options = [answer]
         while len(options) < 4 and sentences:
             random_sentence = random.choice(sentences)
             random_word = random.choice(random_sentence.split())
             if random_word.isalpha() and random_word not in options:
                 options.append(random_word)
-        random.shuffle(options)
 
+        random.shuffle(options)
         questions.append({
             "question": blank_sentence,
             "options": options,
             "answer": answer
         })
+
     return questions
 
 
@@ -77,10 +92,7 @@ def upload():
         return "No selected file", 400
 
     num_questions = int(request.form.get('num_questions', 5))
-
-    # Ensure uploads folder exists again (in case it's deleted)
     os.makedirs("uploads", exist_ok=True)
-
     upload_path = os.path.join("uploads", pdf.filename)
 
     try:
@@ -88,21 +100,18 @@ def upload():
     except Exception as e:
         return f"Error saving file: {e}", 500
 
-    try:
-        text = extract_text_from_pdf(upload_path)
-        if not text.strip():
-            return "Couldn't extract text from PDF (maybe image-based?)", 400
+    text = extract_text_from_pdf(upload_path)
+    if not text.strip():
+        return "Couldn't extract text from PDF (maybe image-based or empty file).", 400
 
-        mcqs = generate_mcqs(text, num_questions)
-        if not mcqs:
-            return "No valid questions could be generated.", 400
+    mcqs = generate_mcqs(text, num_questions)
+    if not mcqs:
+        return "No valid questions could be generated.", 400
 
-        return render_template('results.html', mcqs=mcqs)
-    except Exception as e:
-        return f"Error generating MCQs: {e}", 500
+    return render_template('results.html', mcqs=mcqs)
 
 
 # ---- Deployment-ready section ----
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)  # debug=True for error tracing
+    app.run(host="0.0.0.0", port=port, debug=True)
