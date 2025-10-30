@@ -4,23 +4,30 @@ import nltk
 import random
 import os
 
-# Make sure NLTK punkt tokenizer is available
+# Download punkt for sentence tokenization (silent mode)
 nltk.download('punkt', quiet=True)
 
 app = Flask(__name__)
+
+# ✅ Ensure uploads folder exists (important for Render)
+os.makedirs("uploads", exist_ok=True)
+
 
 # ---- Function to extract text from uploaded PDF ----
 def extract_text_from_pdf(pdf_path):
     text = ""
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
-            text += page.extract_text() or ""
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + " "
     return text
+
 
 # ---- Function to generate simple MCQs from extracted text ----
 def generate_mcqs(text, num_questions=5):
     sentences = nltk.sent_tokenize(text)
-    if len(sentences) == 0:
+    if not sentences:
         return []
 
     questions = []
@@ -28,19 +35,20 @@ def generate_mcqs(text, num_questions=5):
         sentence = random.choice(sentences)
         sentences.remove(sentence)
 
-        # Pick a random word to hide
         words = sentence.split()
         if len(words) < 4:
             continue
+
+        # Select a random word as the correct answer
         answer = random.choice(words)
         blank_sentence = sentence.replace(answer, "______", 1)
 
-        # Generate dummy options
+        # Generate 3 dummy options
         options = [answer]
         while len(options) < 4:
-            opt = random.choice(random.choice(sentences).split())
-            if opt not in options and opt.isalpha():
-                options.append(opt)
+            random_word = random.choice(random.choice(sentences).split())
+            if random_word not in options and random_word.isalpha():
+                options.append(random_word)
         random.shuffle(options)
 
         questions.append({
@@ -56,6 +64,7 @@ def generate_mcqs(text, num_questions=5):
 def index():
     return render_template('index.html')
 
+
 @app.route('/upload', methods=['POST'])
 def upload():
     if 'pdf' not in request.files:
@@ -64,11 +73,14 @@ def upload():
     pdf = request.files['pdf']
     num_questions = int(request.form.get('num_questions', 5))
 
+    # Save uploaded file
     upload_path = os.path.join("uploads", pdf.filename)
     pdf.save(upload_path)
 
+    # Extract text and generate MCQs
     text = extract_text_from_pdf(upload_path)
     mcqs = generate_mcqs(text, num_questions)
+
     return render_template('results.html', mcqs=mcqs)
 
 
