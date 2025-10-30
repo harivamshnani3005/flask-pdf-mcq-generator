@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Generated MCQs</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 70%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+      margin: 50px auto;
+      padding: 30px 50px;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #00796b;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .mcq-box {
+      background: #f7fdfd;
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      transition: 0.3s;
+    }
+
+    .mcq-box:hover {
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-3px);
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: left;
+    }
+
+    li {
+      background: #e0f2f1;
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    li:hover {
+      background: #b2dfdb;
+    }
+
+    .answer {
+      color: #00796b;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .back-btn {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 25px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+      display: block;
+      margin: 20px auto 0;
+    }
+
+    .back-btn:hover {
+      background-color: #004d40;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>✅ Generated MCQs</h2>
+
+    {% for q in mcqs %}
+      <div class="mcq-box">
+        <p><b>Q{{ loop.index }}.</b> {{ q.question }}</p>
+        <ul>
+          {% for opt in q.options %}
+            <li>{{ opt }}</li>
+          {% endfor %}
+        </ul>
+        <p class="answer">Answer: {{ q.answer }}</p>
+      </div>
+    {% endfor %}
+
+    <button class="back-btn" onclick="window.location.href='/'">⬅️ Generate Again</button>
+  </div>
+
+  <footer>
+    <p>Made with ❤️ by Harivamsh Vemula</p>
+  </footer>
+</body>
+</html>

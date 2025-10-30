@@ -1,0 +1,63 @@
+/* General styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #c3ec52, #0ba29d);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* Card container */
+.container {
+    background: #fff;
+    width: 60%;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Headings */
+h1, h2 {
+    color: #0a817a;
+}
+
+/* Buttons */
+button {
+    background-color: #0ba29d;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #08706d;
+}
+
+/* Inputs */
+input[type="file"],
+input[type="number"] {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* MCQ list */
+.mcq-box {
+    background: #f9f9f9;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: #ccc;
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PDF → MCQ Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 60%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+      margin: 60px auto;
+      padding: 40px;
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #00796b;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+    }
+
+    input[type="file"], input[type="number"] {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 80%;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    input[type="file"]:hover, input[type="number"]:hover {
+      border-color: #00796b;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 25px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>📘 PDF → MCQ Generator</h1>
+    <p>Upload your PDF and automatically generate multiple choice questions.</p>
+    <hr><br>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <label><b>Select PDF File:</b></label><br>
+      <input type="file" name="pdf" accept="application/pdf" required><br><br>
+
+      <label><b>Number of Questions:</b></label><br>
+      <input type="number" name="num_questions" value="5" min="1" max="20"><br><br>
+
+      <button type="submit">🚀 Generate MCQs</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>Made with ❤️ by Harivamsh Vemula</p>
+  </footer>
+</body>
+</html>
