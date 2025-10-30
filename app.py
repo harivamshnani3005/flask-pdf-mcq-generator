@@ -4,8 +4,9 @@ import nltk
 import random
 import os
 
-# Download punkt silently for sentence tokenization
+# ✅ Download required NLTK tokenizers
 nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
 
 app = Flask(__name__)
 
@@ -104,4 +105,4 @@ def upload():
 # ---- Deployment-ready section ----
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)  # ✅ Debug ON
+    app.run(host="0.0.0.0", port=port, debug=True)  # debug=True for error tracing
