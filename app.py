@@ -4,7 +4,7 @@ import nltk
 import random
 import os
 
-# Download punkt for sentence tokenization (silent mode)
+# Download punkt silently for sentence tokenization
 nltk.download('punkt', quiet=True)
 
 app = Flask(__name__)
@@ -45,9 +45,10 @@ def generate_mcqs(text, num_questions=5):
 
         # Generate 3 dummy options
         options = [answer]
-        while len(options) < 4:
-            random_word = random.choice(random.choice(sentences).split())
-            if random_word not in options and random_word.isalpha():
+        while len(options) < 4 and sentences:
+            random_sentence = random.choice(sentences)
+            random_word = random.choice(random_sentence.split())
+            if random_word.isalpha() and random_word not in options:
                 options.append(random_word)
         random.shuffle(options)
 
@@ -68,23 +69,39 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     if 'pdf' not in request.files:
-        return "No PDF file uploaded"
+        return "No PDF file uploaded", 400
 
     pdf = request.files['pdf']
+    if pdf.filename == '':
+        return "No selected file", 400
+
     num_questions = int(request.form.get('num_questions', 5))
 
-    # Save uploaded file
+    # Ensure uploads folder exists again (in case it's deleted)
+    os.makedirs("uploads", exist_ok=True)
+
     upload_path = os.path.join("uploads", pdf.filename)
-    pdf.save(upload_path)
 
-    # Extract text and generate MCQs
-    text = extract_text_from_pdf(upload_path)
-    mcqs = generate_mcqs(text, num_questions)
+    try:
+        pdf.save(upload_path)
+    except Exception as e:
+        return f"Error saving file: {e}", 500
 
-    return render_template('results.html', mcqs=mcqs)
+    try:
+        text = extract_text_from_pdf(upload_path)
+        if not text.strip():
+            return "Couldn't extract text from PDF (maybe image-based?)", 400
+
+        mcqs = generate_mcqs(text, num_questions)
+        if not mcqs:
+            return "No valid questions could be generated.", 400
+
+        return render_template('results.html', mcqs=mcqs)
+    except Exception as e:
+        return f"Error generating MCQs: {e}", 500
 
 
 # ---- Deployment-ready section ----
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)  # ✅ Debug ON
