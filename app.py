@@ -1,123 +1,78 @@
-import os
-import random
-import string
 from flask import Flask, render_template, request
 import pdfplumber
 import nltk
-from nltk.tokenize import sent_tokenize, word_tokenize
+import random
+import os
 
-nltk.download('punkt')
+# Make sure NLTK punkt tokenizer is available
+nltk.download('punkt', quiet=True)
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "uploads"
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-
+# ---- Function to extract text from uploaded PDF ----
 def extract_text_from_pdf(pdf_path):
-    """Extract readable text from PDF using pdfplumber"""
     text = ""
-    try:
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages:
-                content = page.extract_text()
-                if content:
-                    clean_content = ''.join(ch for ch in content if ch.isprintable())
-                    text += clean_content + " "
-    except Exception as e:
-        print("Error reading PDF:", e)
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() or ""
     return text
 
-
-def pick_keyword(sentence):
-    """Pick a keyword (important word) from a sentence"""
-    words = word_tokenize(sentence)
-    candidates = [w for w in words if w.isalpha() and len(w) > 4]
-    if not candidates:
-        return None
-    return random.choice(candidates)
-
-
-def generate_distractors(correct_word, all_words, num=3):
-    """Pick real words from the text as distractors (not random nonsense)"""
-    all_words = list(set([w for w in all_words if w.isalpha() and w.lower() != correct_word.lower()]))
-    random.shuffle(all_words)
-    distractors = []
-    for w in all_words:
-        if len(distractors) >= num:
-            break
-        if abs(len(w) - len(correct_word)) <= 3:  # similar size words
-            distractors.append(w)
-    if len(distractors) < num:
-        distractors += random.sample(all_words[:10], num - len(distractors))
-    return distractors[:num]
-
-
+# ---- Function to generate simple MCQs from extracted text ----
 def generate_mcqs(text, num_questions=5):
-    """Generate improved MCQs with realistic options"""
-    sentences = sent_tokenize(text)
-    all_words = word_tokenize(text)
-    mcqs = []
-
-    if not sentences:
+    sentences = nltk.sent_tokenize(text)
+    if len(sentences) == 0:
         return []
 
-    random.shuffle(sentences)
+    questions = []
+    for _ in range(min(num_questions, len(sentences))):
+        sentence = random.choice(sentences)
+        sentences.remove(sentence)
 
-    for sentence in sentences:
-        if len(mcqs) >= num_questions:
-            break
-        keyword = pick_keyword(sentence)
-        if not keyword:
+        # Pick a random word to hide
+        words = sentence.split()
+        if len(words) < 4:
             continue
-        question = sentence.replace(keyword, "_____", 1)
-        distractors = generate_distractors(keyword, all_words, num=3)
-        options = [keyword] + distractors
+        answer = random.choice(words)
+        blank_sentence = sentence.replace(answer, "______", 1)
+
+        # Generate dummy options
+        options = [answer]
+        while len(options) < 4:
+            opt = random.choice(random.choice(sentences).split())
+            if opt not in options and opt.isalpha():
+                options.append(opt)
         random.shuffle(options)
-        mcqs.append({
-            "question": question,
+
+        questions.append({
+            "question": blank_sentence,
             "options": options,
-            "answer": keyword
+            "answer": answer
         })
-    return mcqs
+    return questions
 
 
-@app.route("/")
+# ---- Routes ----
+@app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-
-@app.route("/upload", methods=["POST"])
+@app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files.get("pdf")
-    num_q = request.form.get("num_questions", "5")
+    if 'pdf' not in request.files:
+        return "No PDF file uploaded"
 
-    try:
-        num_q = int(num_q)
-    except:
-        num_q = 5
+    pdf = request.files['pdf']
+    num_questions = int(request.form.get('num_questions', 5))
 
-    if not file or file.filename == "":
-        return "⚠️ No PDF selected. Please go back and try again."
+    upload_path = os.path.join("uploads", pdf.filename)
+    pdf.save(upload_path)
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-    file.save(filepath)
-
-    text = extract_text_from_pdf(filepath)
-    try:
-        os.remove(filepath)
-    except:
-        pass
-
-    if not text.strip():
-        return "⚠️ No readable text found in this PDF. Try another file."
-
-    mcqs = generate_mcqs(text, num_questions=num_q)
-
-    if not mcqs:
-        return "⚠️ Could not generate MCQs. Try a different PDF."
-
-    return render_template("results.html", mcqs=mcqs)
+    text = extract_text_from_pdf(upload_path)
+    mcqs = generate_mcqs(text, num_questions)
+    return render_template('results.html', mcqs=mcqs)
 
 
+# ---- Deployment-ready section ----
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
