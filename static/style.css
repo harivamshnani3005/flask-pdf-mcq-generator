@@ -1,63 +1,18 @@
-/* General styles */
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #c3ec52, #0ba29d);
-    color: #333;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-/* Card container */
-.container {
-    background: #fff;
-    width: 60%;
-    margin: 50px auto;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Headings */
-h1, h2 {
-    color: #0a817a;
-}
-
-/* Buttons */
-button {
-    background-color: #0ba29d;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background-color: #08706d;
-}
-
-/* Inputs */
-input[type="file"],
-input[type="number"] {
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-/* MCQ list */
-.mcq-box {
-    background: #f9f9f9;
-    border-radius: 15px;
-    padding: 15px;
-    margin: 20px 0;
-    text-align: left;
-}
-
-hr {
-    border: none;
-    height: 1px;
-    background: #ccc;
-}
+body{font-family:Arial;background:linear-gradient(135deg,#dff7ff,#bfe6ff);margin:0;padding:20px}
+.card{background:#fff;padding:24px;border-radius:12px;max-width:520px;margin:40px auto;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+h2{color:#0b63d9;text-align:center}
+label{display:block;margin-top:10px;font-weight:600}
+input[type=file],input[type=number],select{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #9cc5f7}
+button,.submitbtn{background:#0b63d9;color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;margin-top:14px;width:100%}
+.qcard{background:#fff;border:3px solid #005c99;padding:18px;border-radius:12px;margin:18px 0;box-shadow:0 6px 14px rgba(0,0,0,.08)}
+.qno{font-weight:700;color:#005c99;margin-bottom:6px}
+.qtxt{margin-bottom:12px}
+.optrow{display:flex;align-items:center;cursor:pointer;margin:8px 0}
+.circle{width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid #005c99;color:#005c99;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:700}
+.optbox{flex:1;padding:10px;border:2px solid #005c99;border-radius:8px}
+input[type=radio]{display:none}
+input[type=radio]:checked + .optbox{background:#bfe7ff;border-color:#0077cc}
+input[type=radio]:checked ~ .circle{background:#005c99;color:#fff;border-color:#005c99}
+.card .correct{background:#c8ffc8;padding:8px;border-radius:8px;margin:6px 0}
+.card .wrong{background:#ffc6c6;padding:8px;border-radius:8px;margin:6px 0}
+.card .neutral{background:#f1f7ff;padding:8px;border-radius:8px;margin:6px 0}
