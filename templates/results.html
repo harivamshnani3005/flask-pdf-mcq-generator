@@ -1,124 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Generated MCQs</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Answer the Quiz</title>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      margin: 0;
-      padding: 0;
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:"Poppins",sans-serif;
+      background:linear-gradient(135deg,#cbe8ff,#a0c9ff);
+      min-height:100vh;
+      padding-bottom:60px;
     }
-
-    .container {
-      width: 70%;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
-      margin: 50px auto;
-      padding: 30px 50px;
-      animation: fadeIn 1s ease;
+    .navbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:#0b63d9;
+      color:#fff;
+      padding:15px;
+      text-align:center;
+      font-size:20px;
+      font-weight:600;
+      box-shadow:0 4px 10px rgba(0,0,0,0.2);
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .container{
+      max-width:900px;
+      margin:30px auto;
+      background:#fff;
+      border-radius:16px;
+      padding:40px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.12);
     }
-
-    h2 {
-      color: #00796b;
-      text-align: center;
-      margin-bottom: 20px;
+    h2{
+      text-align:center;
+      color:#0b63d9;
+      margin-bottom:30px;
+      font-size:26px;
     }
-
-    .mcq-box {
-      background: #f7fdfd;
-      border: 1px solid #ddd;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 25px;
-      transition: 0.3s;
+    .qcard{
+      background:#f8fbff;
+      border:2px solid #d5e7ff;
+      border-radius:16px;
+      padding:25px;
+      margin-bottom:25px;
+      transition:transform .25s,box-shadow .25s;
     }
-
-    .mcq-box:hover {
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      transform: translateY(-3px);
+    .qcard:hover{
+      transform:translateY(-4px);
+      box-shadow:0 10px 18px rgba(0,0,0,0.08);
     }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-      text-align: left;
+    .qno{
+      font-weight:700;
+      color:#0b63d9;
+      margin-bottom:8px;
     }
-
-    li {
-      background: #e0f2f1;
-      margin: 8px 0;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
+    .qtxt{
+      font-size:18px;
+      font-weight:500;
+      margin-bottom:15px;
+      line-height:1.5;
     }
-
-    li:hover {
-      background: #b2dfdb;
+    .optrow{
+      margin:10px 0;
     }
-
-    .answer {
-      color: #00796b;
-      font-weight: bold;
-      margin-top: 10px;
+    input[type=radio]{display:none;}
+    label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 16px;
+      border:2px solid #a8ceff;
+      border-radius:12px;
+      background:#fff;
+      cursor:pointer;
+      transition:.3s;
+      font-size:16px;
     }
-
-    .back-btn {
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 25px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
-      display: block;
-      margin: 20px auto 0;
+    label:hover{background:#eef6ff;}
+    input[type=radio]:checked + label{
+      background:#0b63d9;
+      color:#fff;
+      border-color:#0b63d9;
+      box-shadow:0 4px 8px rgba(11,99,217,0.2);
     }
-
-    .back-btn:hover {
-      background-color: #004d40;
+    .circle{
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      border:2px solid #0b63d9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:600;
+      color:#0b63d9;
+      background:#fff;
+      transition:.3s;
     }
-
-    footer {
-      text-align: center;
-      margin-top: 20px;
-      color: #777;
-      font-size: 14px;
+    input[type=radio]:checked + label .circle{
+      background:#fff;
+      color:#0b63d9;
+      border-color:#fff;
     }
+    button{
+      display:block;
+      width:100%;
+      background:#0b63d9;
+      color:#fff;
+      border:none;
+      padding:15px;
+      border-radius:12px;
+      font-size:18px;
+      font-weight:600;
+      margin-top:30px;
+      cursor:pointer;
+      transition:.3s;
+    }
+    button:hover{background:#094ca8;}
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <h2>✅ Generated MCQs</h2>
-
-    {% for q in mcqs %}
-      <div class="mcq-box">
-        <p><b>Q{{ loop.index }}.</b> {{ q.question }}</p>
-        <ul>
-          {% for opt in q.options %}
-            <li>{{ opt }}</li>
-          {% endfor %}
-        </ul>
-        <p class="answer">Answer: {{ q.answer }}</p>
-      </div>
-    {% endfor %}
-
-    <button class="back-btn" onclick="window.location.href='/'">⬅️ Generate Again</button>
+  <div class="navbar">
+    Quiz Portal
+    {% if total is defined %}
+      <div id="progress" style="font-size:14px;margin-top:5px;">0 / {{ total }} answered</div>
+    {% else %}
+      <div id="progress" style="font-size:14px;margin-top:5px;">0 answered</div>
+    {% endif %}
   </div>
 
-  <footer>
-    <p>Made with ❤️ by Harivamsh Vemula</p>
-  </footer>
+  <div class="container">
+    <h2>Answer the Questions</h2>
+
+    <form method="POST" action="{{ url_for('submit') }}" id="quizForm">
+      {% if mcqs %}
+        {% for q in mcqs %}
+        <div class="qcard">
+          <div class="qno">Q{{ q.q_no }}</div>
+          <div class="qtxt">{{ q.question }}</div>
+
+          {% for opt in q.options %}
+          <div class="optrow">
+            <input type="radio" id="q{{ q.q_no }}_{{ loop.index }}" name="q{{ q.q_no }}" value="{{ opt }}" required>
+            <label for="q{{ q.q_no }}_{{ loop.index }}">
+              <div class="circle">{{ ('ABCD')[loop.index0] }}</div>
+              {{ opt }}
+            </label>
+          </div>
+          {% endfor %}
+
+          <input type="hidden" name="a{{ q.q_no }}" value="{{ q.answer }}">
+          <input type="hidden" name="text{{ q.q_no }}" value="{{ q.question }}">
+          {% for opt in q.options %}
+            <input type="hidden" name="opt{{ q.q_no }}" value="{{ opt }}">
+          {% endfor %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="text-align:center;font-size:18px;">No questions available. Please upload a valid PDF.</p>
+      {% endif %}
+
+      <input type="hidden" name="total_questions" value="{{ total if total is defined else 0 }}">
+      <button type="submit">Submit Quiz</button>
+    </form>
+  </div>
+
+  <!-- ✅ JavaScript (Progress Tracker) -->
+  <script>
+    const total = Number("{{ total | default(0) }}");
+    const radios = document.querySelectorAll('input[type=radio]');
+    const progress = document.getElementById('progress');
+    const answered = new Set();
+
+    radios.forEach(r => {
+      r.addEventListener('change', () => {
+        answered.add(r.name);
+        if (progress) progress.textContent = `${answered.size} / ${total} answered`;
+      });
+    });
+  </script>
 </body>
 </html>
