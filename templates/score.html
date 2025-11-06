@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Results</title>
+  <style>
+    body{font-family:"Poppins",sans-serif;background:linear-gradient(135deg,#cbe8ff,#a0c9ff);margin:0;padding:30px;}
+    .wrapper{max-width:950px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;box-shadow:0 12px 28px rgba(0,0,0,0.15);}
+    .score-card{text-align:center;background:#e9f3ff;border:2px solid #b6d7ff;border-radius:14px;padding:30px;margin-bottom:35px;}
+    .score-card h1{color:#0b63d9;font-size:34px;margin-bottom:5px;}
+    .question{border:2px solid #d0e4ff;border-radius:12px;padding:20px;margin-bottom:20px;background:#f9fcff;}
+    .correct{color:#2ecc71;font-weight:700;}
+    .wrong{color:#e74c3c;font-weight:700;}
+    .retry{display:block;width:240px;margin:35px auto 0;background:#0b63d9;color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-weight:600;font-size:17px;}
+    .retry:hover{background:#094ca8;}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="score-card">
+      <h1>Your Score: {{ score }} / {{ total }}</h1>
+    </div>
+
+    {% for r in results %}
+    <div class="question">
+      <p><strong>Q{{ r.qno }}:</strong> {{ r.question }}</p>
+      {% for opt in r.options %}
+        <p>
+          {{ ('ABCD')[loop.index0] }}) {{ opt }}
+          {% if opt == r.correct %}
+            <span class="correct">✔</span>
+          {% elif opt == r.user and opt != r.correct %}
+            <span class="wrong">✖</span>
+          {% endif %}
+        </p>
+      {% endfor %}
+    </div>
+    {% endfor %}
+
+    <a href="/" class="retry">Try Another Quiz</a>
+  </div>
+</body>
+</html>
